@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Image Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>My Image Gallery</h1>
+        <p>Explore beautiful moments</p>
+    </header>
+
+    <!-- Image Grid -->
+    <section class="gallery">
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600"
+             alt="Beautiful landscape" onclick="openSlide(0)">
+
+        <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=600"
+             alt="Mountain lake" onclick="openSlide(1)">
+
+        <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600"
+             alt="Green forest" onclick="openSlide(2)">
+
+        <img src="https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=600"
+             alt="Sunrise landscape" onclick="openSlide(3)">
+
+        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600"
+             alt="Mountain scenery" onclick="openSlide(4)">
+
+        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600"
+             alt="Snowy mountains" onclick="openSlide(5)">
+    </section>
+
+    <!-- Slideshow -->
+    <div id="slideshow" class="slideshow">
+        <button class="close" onclick="closeSlide()">×</button>
+
+        <button class="prev" onclick="changeSlide(-1)">❮</button>
+
+        <img id="slideImage" src="" alt="Selected gallery image">
+
+        <button class="next" onclick="changeSlide(1)">❯</button>
+
+        <p id="caption"></p>
+
+        <button id="playBtn" onclick="toggleAutoPlay()">
+            Start Auto Play
+        </button>
+    </div>
+
+    <footer>
+        <p>© 2026 My Image Gallery</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
