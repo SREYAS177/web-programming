@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Application</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #eaf4ff;
+            padding: 40px;
+        }
+        .box {
+            background: white;
+            padding: 25px;
+            width: 350px;
+            margin: auto;
+            border-radius: 10px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Weather Application</h2>
+
+    <input type="text" id="city" placeholder="Enter city name" autocomplete="off">
+    <button type="button" id="search">Search</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    const cityInput = document.getElementById("city");
+    const searchButton = document.getElementById("search");
+    const result = document.getElementById("result");
+
+    async function getWeather() {
+        const city = cityInput.value.trim();
+
+        if (city === "") {
+            result.textContent = "Please enter a city name.";
+            return;
+        }
+
+        result.textContent = "Loading...";
+
+        try {
+            const locationUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
+            const locationResponse = await fetch(locationUrl);
+
+            if (!locationResponse.ok) {
+                throw new Error("Unable to connect to the weather service.");
+            }
+
+            const locationData = await locationResponse.json();
+
+            if (!locationData.results || locationData.results.length === 0) {
+                throw new Error("City not found.");
+            }
+
+            const location = locationData.results[0];
+            const weatherUrl =
+                `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}` +
+                `&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,weather_code` +
+                "&timezone=auto";
+            const weatherResponse = await fetch(weatherUrl);
+
+            if (!weatherResponse.ok) {
+                throw new Error("Unable to retrieve the weather.");
+            }
+
+            const data = await weatherResponse.json();
+            const weatherDescriptions = {
+                0: "Clear sky",
+                1: "Mainly clear",
+                2: "Partly cloudy",
+                3: "Overcast",
+                45: "Fog",
+                48: "Depositing rime fog",
+                51: "Light drizzle",
+                53: "Moderate drizzle",
+                55: "Dense drizzle",
+                61: "Slight rain",
+                63: "Moderate rain",
+                65: "Heavy rain",
+                71: "Slight snow",
+                73: "Moderate snow",
+                75: "Heavy snow",
+                80: "Rain showers",
+                81: "Moderate rain showers",
+                82: "Heavy rain showers",
+                95: "Thunderstorm",
+                96: "Thunderstorm with slight hail",
+                99: "Thunderstorm with heavy hail"
+            };
+            const weatherCode = data.current.weather_code;
+            const placeName = [location.name, location.admin1, location.country]
+                .filter((value, index, values) => value && values.indexOf(value) === index)
+                .join(", ");
+
+            result.innerHTML = `
+                <h3>${placeName}</h3>
+                <p>Temperature: ${data.current.temperature_2m} °C</p>
+                <p>Humidity: ${data.current.relative_humidity_2m}%</p>
+                <p>Weather: ${weatherDescriptions[weatherCode] || "Unknown"}</p>
+            `;
+        }
+        catch (error) {
+            result.textContent = error.message;
+        }
+    }
+
+    searchButton.addEventListener("click", getWeather);
+    cityInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            getWeather();
+        }
+    });
+</script>
+
+</body>
+</html>

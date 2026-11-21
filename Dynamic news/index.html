@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Feed</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        #newsSetup {
+            max-width: 600px;
+            margin: 15px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        #apiKey {
+            width: min(420px, calc(100% - 100px));
+            padding: 8px;
+        }
+        #saveApiKey {
+            padding: 8px 12px;
+        }
+        .news {
+            background: white;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<h2 align="center">Latest News</h2>
+<form id="newsSetup">
+    <label for="apiKey">NewsAPI key:</label>
+    <input id="apiKey" type="password" autocomplete="off"
+           placeholder="Paste your NewsAPI key">
+    <button id="saveApiKey" type="submit">Load news</button>
+</form>
+<div id="newsContainer"></div>
+
+<script>
+    const setupForm = document.getElementById("newsSetup");
+    const apiKeyInput = document.getElementById("apiKey");
+    const container = document.getElementById("newsContainer");
+
+    const savedApiKey = localStorage.getItem("newsApiKey");
+    if (savedApiKey) {
+        apiKeyInput.value = savedApiKey;
+    }
+
+    setupForm.addEventListener("submit", event => {
+        event.preventDefault();
+        const apiKey = apiKeyInput.value.trim();
+
+        if (!apiKey) {
+            container.textContent = "Please enter your NewsAPI key.";
+            return;
+        }
+
+        localStorage.setItem("newsApiKey", apiKey);
+        loadNews(apiKey);
+    });
+
+    async function loadNews(apiKey) {
+        const url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${apiKey}`;
+
+        container.innerHTML = "Loading news...";
+
+        try {
+            const response = await fetch(url);
+
+            const data = await response.json();
+
+if (data.status !== "ok") {
+    throw new Error(data.message || "Unable to fetch news");
+}
+
+            container.innerHTML = "";
+
+            if (!data.articles || data.articles.length === 0) {
+                container.innerHTML = "No news available.";
+                return;
+            }
+
+            data.articles.forEach(article => {
+                const div = document.createElement("div");
+                div.className = "news";
+
+                const title = document.createElement("h3");
+                title.textContent = article.title || "No title";
+
+                const image = document.createElement("img");
+                image.src = article.urlToImage || "";
+                image.alt = "News image";
+                image.onerror = function() {
+                    image.style.display = "none";
+                };
+
+                const description = document.createElement("p");
+                description.textContent =
+                    article.description || "No description available.";
+
+                const source = document.createElement("p");
+                source.textContent =
+                    "Source: " + (article.source && article.source.name
+                        ? article.source.name
+                        : "Unknown");
+
+                const date = document.createElement("p");
+                const publishedAt = article.publishedAt
+                    ? new Date(article.publishedAt)
+                    : null;
+                date.textContent = publishedAt && !Number.isNaN(publishedAt.getTime())
+                    ? "Published: " + publishedAt.toLocaleString()
+                    : "Published: Unknown";
+
+                div.append(title, image, description, source, date);
+                container.appendChild(div);
+            });
+        }
+        catch (error) {
+            container.textContent = error.message;
+        }
+    }
+
+    if (savedApiKey) {
+        loadNews(savedApiKey);
+    }
+</script>
+
+</body>
+</html>
