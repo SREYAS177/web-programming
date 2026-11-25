@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Search</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f2f2;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            width: 400px;
+            margin: auto;
+            border-radius: 10px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 15px 0;
+        }
+
+        .result {
+            background: #e8e8e8;
+            padding: 10px;
+            margin: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Live Search</h2>
+
+        <input type="text" id="search"
+        placeholder="Search users...">
+
+        <div id="results">Loading users...</div>
+    </div>
+
+    <script>
+        let users = [];
+
+        // Fetch data from API
+        fetch("https://jsonplaceholder.typicode.com/users")
+            .then(response => response.json())
+            .then(data => {
+                users = data;
+                displayUsers(users);
+            })
+            .catch(error => {
+                document.getElementById("results").innerHTML =
+                    "Error loading data";
+            });
+
+        // Display users
+        function displayUsers(data) {
+            let output = "";
+
+            if (data.length === 0) {
+                output = "No results found";
+            }
+
+            data.forEach(user => {
+                output += `
+                    <div class="result">
+                        <b>${user.name}</b><br>
+                        ${user.email}
+                    </div>
+                `;
+            });
+
+            document.getElementById("results").innerHTML = output;
+        }
+
+        // Live search
+        document.getElementById("search")
+            .addEventListener("input", function() {
+
+                let value = this.value.toLowerCase();
+
+                let filtered = users.filter(user =>
+                    user.name.toLowerCase().includes(value)
+                );
+
+                displayUsers(filtered);
+            });
+    </script>
+
+</body>
+</html>
